@@ -1,0 +1,176 @@
+---
+title: "HOMEWORK 7"
+author: "Andrew Guo"
+date: "3/26/2022"
+output: pdf_document
+fontsize: 12pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(digits=4)
+```
+
+
+## PROBLEM 1
+
+We will now derive the probability that a given observation is part of a bootstrap sample. Suppose that we obtain a bootstrap sample from a set of $n$ observations.
+
+(a) What is the probability that the first bootstrap observation **is not** the $j$th observation from the original sample? Provide a brief mathematical justification.
+
+Bootstrapping resamples with replacement, meaning that there is always going to be n observations as a whole. Thus, the probability that the observation is not in the jth observation from the original sample will be $(1 - (1/n)$.; with 1/n representing the probaility that the jth observation is being selected. 
+
+\vspace{.2in}
+(b) What is the probability that the second bootstrap observation **is not** the $j$th observation from the original sample? Provide a brief mathematical justification.
+
+If you are sampling with replacement, then the probability is the same as the first boostrap observation.
+
+\vspace{.2in}
+(c) Argue that the probability that the $j$th observation **is not** in the entire bootstrap sample is $(1 - 1/n)^n$.
+
+If the probability for one specific observation to not occur in the first obsservation is is (1-(1/n)), and if this value holds for all specific obesrvations in the boostrap sample since there is replacement, and because a boostrap contains exactly n observations, the probability for that specific observation to not be in the sample would be the probability for that one specific obesrvation, multiplied by itself n times, therefore, we would get $(1 - (1/n)^n$.
+
+\vspace{.2in}
+(d) When $n$ = 5, what is the probability that the $j$th observation **is** in the bootstrap sample?
+
+This value would equal to 1 minus the probaiblity that it does not occur at all in the entire bootstrap model. Thus, the probability would be, in general terms, $1-[(1 - (1/n)]^n$.If we have 5 observations, this would mean that the probability equals: $1-[(1 - (1/5)]^5 = 1-[(4/5)^5] = 1- 0.64 = 0.36$.
+
+\vspace{.2in}
+(e) When $n$ = 25, what is the probability that the $j$th observation **is** in the bootstrap sample?
+
+$1-[(1 - (1/n)]^n$
+
+$1-[(1 - (1/25)]^(25)$ = approx. 1
+
+
+\vspace{.2in}
+(f) When $n$ = 100, what is the probability that the $j$th observation **is** in the bootstrap sample?
+
+$1-[(1 - (1/100)]^(100)$
+
+It's pretty much 1. 
+
+\vspace{.2in}
+(g) Create a plot that displays, for each integer value of n from 1 to 100, the probability that the $j$th observation is in the bootstrap sample. Comment on what you observe.
+
+```{r }
+x = seq(1,100)
+y = for (i in x) {
+  1-(1 - (1/i))^(i)
+}
+plot(x, y, xlab = 'nth observation', ylab = 'Probability that the nth observation is in the bootstrap sample')
+```
+
+<!-- end each problem with a pagebreak --> 
+\pagebreak
+
+## PROBLEM 2
+
+We will now perform cross-validation on a simulated data set.
+
+(a) Generate a simulated data set as follows:
+
+`> set.seed(1)`
+
+`> x <- rnorm(100)`
+
+`> y <- x - 2 * x^2 + rnorm(100)`
+
+```{r }
+set.seed(1)
+
+x <- rnorm(100)
+
+y <- x - 2 * x^2 + rnorm(100)
+```
+
+In this data set, what is $n$ and what is $p$? Write out the model used to generate the data in equation form.
+
+In this model, n = 100 and p is equal to 2. 
+
+\vspace{.2in}
+(b) Create a scatterplot of `x` against `y` . Comment on what you observe.
+
+```{r}
+plot(x, y)
+```
+
+I notice a strong, non-linear, negative parabolic relationship between x and y. 
+
+\vspace{.2in}
+(c) Set a random seed, and then compute the LOOCV errors that result from fitting the following four models using least squares:
+
+\begin{enumerate}
+\item $y = \beta_0 + \beta_1 x + \epsilon$
+\item $y = \beta_0 + \beta_1 x + \beta_2 x^2 + \epsilon$
+\item $y = \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3 x^3 + \epsilon$
+\item $y = \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3 x^3 + \beta_4 x^4 + \epsilon$
+\end{enumerate}
+
+Note you may find it helpful to use the `data.frame()` function
+to create a single data set containing both `x` and `y`. Consult with the LOOCV section of the Chapter 5 lab.
+
+```{r}
+set.seed(2)
+x <- rnorm(100)
+
+y <- x - 2 * x^2 + rnorm(100)
+
+data <- data.frame(x = x, y = y) #dataframe containing both x and y values
+attach(data)
+
+#dataGLM.fit1 <- glm(y~x, data = data)
+#summary(dataGLM.fit1)
+#cv.err <- cv.glm(data, dataGLM.fit1)
+#cv.err$delta
+
+cv.error <- rep (0, 4)
+for (i in 1:4) {
+  glm.fit <- glm(y ∼ poly(x , i), data = data)
+  cv.error[i] <- cv.glm(data , glm.fit)$delta[1]
+}
+cv.error
+
+```
+
+
+\vspace{.2in}
+(d) Repeat (c) using another random seed, and report your results.
+Are your results the same as what you got in (c)? Why?
+
+```{r}
+set.seed(3)
+x <- rnorm(100)
+
+y <- x - 2 * x^2 + rnorm(100)
+
+data <- data.frame(x = x, y = y) #dataframe containing both x and y values
+attach(data)
+
+#dataGLM.fit1 <- glm(y~x, data = data)
+#summary(dataGLM.fit1)
+#cv.err <- cv.glm(data, dataGLM.fit1)
+#cv.err$delta
+
+cv.error <- rep (0, 4)
+for (i in 1:4) {
+  glm.fit <- glm(y ∼ poly(x , i), data = data)
+  cv.error[i] <- cv.glm(data , glm.fit)$delta[1]
+}
+cv.error
+
+```
+
+
+
+\vspace{.2in}
+(e) Which of the models in (c) had the smallest LOOCV error? Is this what you expected? Explain your answer.
+
+
+\vspace{.2in}
+(f) Comment on the statistical significance of the coefficient estimates that results from fitting each of the models in (c) using the `lm()` and `summary()` functions. Do these results agree with the conclusions drawn based on the cross-validation results?
+
+```{r}
+
+```
+
